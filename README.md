@@ -23,18 +23,18 @@ A partir del modelo base, planteamos tres hipótesis distintas y realizamos múl
 ### 1. ¿Cómo afecta el largo del tablero a la duración de la partida?
 Simulamos partidas incrementando el tamaño de la pista. Los datos demostraron que a medida que el largo del camino aumenta, la duración de la partida (medida en cantidad de turnos) crece de manera exponencial.
 
-![Duración vs Largo](<img width="414" height="234" alt="grafico1" src="https://github.com/user-attachments/assets/9efdba30-10e7-49ae-830e-ab8c7cc0e427" />
+![Duración vs Largo](grafico1.png)
 )
 
 ### 2. ¿Qué pasa si un equipo usa una estrategia sesgada?
 Modificamos las probabilidades de la función de Piedra, Papel o Tijera para que el equipo A elija "Piedra" con mayor frecuencia. La simulación demostró que esta estrategia no altera sus posibilidades de ganar; el resultado del juego sigue tendiendo a la aleatoriedad perfecta (50/50).
 
-![Estrategia Sesgada](<img width="468" height="241" alt="grafico2" src="https://github.com/user-attachments/assets/3934fe75-8adc-4f0a-9553-c02e72e7f779" />)
+![Estrategia Sesgada](grafico2.png)
 
 ### 3. ¿Cómo impacta la velocidad de avance en la victoria?
 Alteramos el ritmo de los jugadores, dándole a un equipo mayor probabilidad de avanzar casilleros por turno que al otro. El análisis gráfico mostró una clara correlación: a medida que la probabilidad de avanzar aumenta, las posibilidades de victoria crecen drásticamente. El único punto de equidad se encuentra cuando ambos tienen exactamente 0.5 de probabilidad de moverse.
 
-![Velocidad de Avance](<img width="502" height="244" alt="grafico3" src="https://github.com/user-attachments/assets/863fac6c-f5ac-4947-b444-df4b57808c52" />)
+![Velocidad de Avance](grafico3.png)
 
 ## 👥 Autores
 Proyecto desarrollado en conjunto por:
