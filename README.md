@@ -1,42 +1,55 @@
-# Simulación Probabilística: Rayuela Mortal 🎲
+# Rayuela Mortal: Stochastic Simulation & Analysis 🎲
 
-Este repositorio contiene el Trabajo Práctico Final desarrollado para la materia Pensamiento Computacional de la Facultad de Ciencias Exactas y Naturales (UBA). 
+A high-performance Python simulation of the "Rayuela Mortal" game, refactored with **NumPy** and **Pandas** to analyze game dynamics, probabilistic strategies, and board scaling.
 
-El objetivo principal del proyecto fue modelar matemáticamente y simular en Python un juego llamado "Rayuela Mortal" para analizar cómo distintas variables aleatorias afectan el desarrollo, la duración y el resultado de las partidas.
+## 🔬 Mathematical Model
 
-## 📋 Reglas del modelo
-El sistema simula un enfrentamiento con las siguientes condiciones:
-* Dos equipos (A y B) inician en los extremos opuestos de un camino (representado por una lista).
-* Ambos equipos avanzan casillero por casillero hasta encontrarse.
-* Al chocar, el conflicto se resuelve mediante una partida de Piedra, Papel o Tijera.
-* El ganador del duelo sigue avanzando, mientras que el perdedor es penalizado y debe volver a su punto de partida original.
-* El juego termina cuando uno de los equipos logra llegar a la anteúltima posición del extremo contrario.
+The game can be modeled as a **Discrete-Time Markov Chain (DTMC)** with absorbing states. 
 
-## 🛠️ Tecnologías utilizadas
-* **Python**: Lógica algorítmica, funciones, ciclos y manejo de probabilidades con la librería `random`.
-* **Matplotlib (`pyplot`)**: Generación de gráficos para el análisis exploratorio de los datos simulados.
+### 1. State Space
+The state is defined by the positions of Team A ($x_a$) and Team B ($x_b$) on a board of length $L$:
+$$S = \{ (x_a, x_b) \in \mathbb{Z}^2 : 0 \le x_a \le x_b \le L-1 \}$$
 
-## 📊 Análisis y Visualizaciones
+### 2. Transition Rules
+In each turn $t$, a movement occurs based on the probability $P(A_{adv})$:
+- Team A moves: $(x_a, x_b) \to (x_a + 1, x_b)$
+- Team B moves: $(x_a, x_b) \to (x_a, x_b - 1)$
 
-A partir del modelo base, planteamos tres hipótesis distintas y realizamos múltiples simulaciones iterativas para responderlas:
+### 3. The Collision Constraint
+A collision occurs when $x_a = x_b$. The conflict is resolved via a duel (Rock-Paper-Scissors). Let $W$ be the winner:
+- If $W=A$, then $x_b \to L-1$ (Team B is reset).
+- If $W=B$, then $x_a \to 0$ (Team A is reset).
 
-### 1. ¿Cómo afecta el largo del tablero a la duración de la partida?
-Simulamos partidas incrementando el tamaño de la pista. Los datos demostraron que a medida que el largo del camino aumenta, la duración de la partida (medida en cantidad de turnos) crece de manera exponencial.
+### 4. Absorbing States (Winning)
+The game ends when:
+- $x_a = L-1$ (Victory for A)
+- $x_b = 0$ (Victory for B)
 
-![Duración vs Largo](grafico1.png)
-)
+## 🛠️ Features
+- **Vectorized Simulations**: Optimized using NumPy for thousands of iterations.
+- **Data Analysis**: Pandas-driven experiment management.
+- **Visualization**: Professional charts using Seaborn and Matplotlib.
+- **Jupyter Integration**: Comprehensive analysis available in `Rayuela_Mortal_Analysis.ipynb`.
 
-### 2. ¿Qué pasa si un equipo usa una estrategia sesgada?
-Modificamos las probabilidades de la función de Piedra, Papel o Tijera para que el equipo A elija "Piedra" con mayor frecuencia. La simulación demostró que esta estrategia no altera sus posibilidades de ganar; el resultado del juego sigue tendiendo a la aleatoriedad perfecta (50/50).
+## 🚀 Getting Started
 
-![Estrategia Sesgada](grafico2.png)
+### Installation
+```bash
+pip install -r requirements.txt
+```
 
-### 3. ¿Cómo impacta la velocidad de avance en la victoria?
-Alteramos el ritmo de los jugadores, dándole a un equipo mayor probabilidad de avanzar casilleros por turno que al otro. El análisis gráfico mostró una clara correlación: a medida que la probabilidad de avanzar aumenta, las posibilidades de victoria crecen drásticamente. El único punto de equidad se encuentra cuando ambos tienen exactamente 0.5 de probabilidad de moverse.
+### Running Simulations
+You can run the base experiments directly from the script:
+```bash
+python main.py
+```
+Or explore the detailed analysis in the Jupyter Notebook.
 
-![Velocidad de Avance](grafico3.png)
+## 📊 Key Insights
+1. **Board Scaling**: The expected game length $E[T]$ grows super-linearly with board size $L$ due to the high penalty of resets.
+2. **Strategy Neutrality**: Biasing Rock-Paper-Scissors moves against a random opponent does not deviate the win rate from the 50/50 equilibrium.
+3. **Kinetic Dominance**: Movement probability $P(A_{adv})$ is the primary determinant of victory.
 
-## 👥 Autores
-Proyecto desarrollado en conjunto por:
-* Joaquín Bustamante
-* Lisa Muñoz
+## 👥 Contributors
+- Joaquín Bustamante
+- Lisa Muñoz
