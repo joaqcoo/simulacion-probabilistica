@@ -241,7 +241,3 @@ def grafico_simulacion2(n_ulaulas):
     plt.xlabel("Probabilidad de que avance A")
     plt.ylabel("Probabilidad de que gane cada equipo")
     plt.legend()
-    
-    
-    
-    
