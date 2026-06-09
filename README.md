@@ -1,55 +1,46 @@
-# Rayuela Mortal: Stochastic Simulation & Analysis 🎲
+# Simulación Probabilística: Rayuela Mortal 🎲
 
-A high-performance Python simulation of the "Rayuela Mortal" game, refactored with **NumPy** and **Pandas** to analyze game dynamics, probabilistic strategies, and board scaling.
+Este repositorio contiene el Trabajo Práctico Final desarrollado para la materia Pensamiento Computacional de la Facultad de Ciencias Exactas y Naturales (UBA). 
 
-## 🔬 Mathematical Model
+El proyecto modela y simula el juego "Rayuela Mortal" para analizar cómo variables aleatorias afectan el resultado de las partidas.
 
-The game can be modeled as a **Discrete-Time Markov Chain (DTMC)** with absorbing states. 
+## 📋 Reglas del Modelo
+El sistema simula un enfrentamiento con las siguientes condiciones:
+* Dos equipos (A y B) inician en extremos opuestos.
+* Avanzan casillero por casillero hasta encontrarse.
+* Al chocar, el conflicto se resuelve mediante **Piedra, Papel o Tijera**.
+* El ganador sigue avanzando; el perdedor vuelve a su punto de partida.
+* El juego termina cuando un equipo llega al extremo contrario.
 
-### 1. State Space
-The state is defined by the positions of Team A ($x_a$) and Team B ($x_b$) on a board of length $L$:
-$$S = \{ (x_a, x_b) \in \mathbb{Z}^2 : 0 \le x_a \le x_b \le L-1 \}$$
+## 🔬 Modelo Matemático
+El juego se puede describir como una **Cadena de Markov** con estados absorbentes. 
 
-### 2. Transition Rules
-In each turn $t$, a movement occurs based on the probability $P(A_{adv})$:
-- Team A moves: $(x_a, x_b) \to (x_a + 1, x_b)$
-- Team B moves: $(x_a, x_b) \to (x_a, x_b - 1)$
+### Definición de Estados
+Sea $L$ el largo del tablero. El estado se define por las posiciones $(x_A, x_B)$:
+$$S = \{ (x_A, x_B) \in \mathbb{Z}^2 : 0 \le x_A \le x_B \le L-1 \}$$
 
-### 3. The Collision Constraint
-A collision occurs when $x_a = x_b$. The conflict is resolved via a duel (Rock-Paper-Scissors). Let $W$ be the winner:
-- If $W=A$, then $x_b \to L-1$ (Team B is reset).
-- If $W=B$, then $x_a \to 0$ (Team A is reset).
+### Probabilidades de Transición
+En cada turno, la transición depende de la probabilidad de avance $P(adv_A)$:
+1. **Movimiento**: 
+   - A avanza con $P(adv_A)$
+   - B avanza con $1 - P(adv_A)$
+2. **Colisión**: Si $x_A + 1 = x_B$, ocurre un duelo de Piedra, Papel o Tijera.
+   - Si gana A: $x_B \to L-1$
+   - Si gana B: $x_A \to 0$
 
-### 4. Absorbing States (Winning)
-The game ends when:
-- $x_a = L-1$ (Victory for A)
-- $x_b = 0$ (Victory for B)
+## 🛠️ Estructura del Proyecto
+- `src/main.py`: Lógica principal de simulación y funciones de experimentos.
+- `notebooks/Rayuela_Mortal_Analisis.ipynb`: Análisis visual e interactivo de los resultados.
+- `assets/`: Gráficos generados y recursos visuales.
+- `requirements.txt`: Dependencias necesarias (NumPy, Pandas, Matplotlib).
 
-## 🛠️ Features
-- **Vectorized Simulations**: Optimized using NumPy for thousands of iterations.
-- **Data Analysis**: Pandas-driven experiment management.
-- **Visualization**: Professional charts using Seaborn and Matplotlib.
-- **Jupyter Integration**: Comprehensive analysis available in `Rayuela_Mortal_Analysis.ipynb`.
+## 📊 Análisis y Visualizaciones
+Se plantean tres hipótesis principales:
+1. **Largo del Tablero**: La duración de la partida crece exponencialmente respecto al tamaño $L$.
+2. **Estrategia Sesgada**: Modificar la probabilidad de elegir "Piedra" no altera el equilibrio 50/50 si el oponente es aleatorio.
+3. **Velocidad de Avance**: Existe una correlación crítica entre la frecuencia de movimiento y la tasa de victoria.
 
-## 🚀 Getting Started
-
-### Installation
-```bash
-pip install -r requirements.txt
-```
-
-### Running Simulations
-You can run the base experiments directly from the script:
-```bash
-python main.py
-```
-Or explore the detailed analysis in the Jupyter Notebook.
-
-## 📊 Key Insights
-1. **Board Scaling**: The expected game length $E[T]$ grows super-linearly with board size $L$ due to the high penalty of resets.
-2. **Strategy Neutrality**: Biasing Rock-Paper-Scissors moves against a random opponent does not deviate the win rate from the 50/50 equilibrium.
-3. **Kinetic Dominance**: Movement probability $P(A_{adv})$ is the primary determinant of victory.
-
-## 👥 Contributors
-- Joaquín Bustamante
-- Lisa Muñoz
+## 👥 Autores
+Proyecto desarrollado por:
+* Joaquín Bustamante
+* Lisa Muñoz
