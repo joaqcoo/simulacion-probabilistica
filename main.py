@@ -1,89 +1,243 @@
-import numpy as np
-import pandas as pd
+import random
 import matplotlib.pyplot as plt
-import seaborn as sns
 
-def simulate_game(n_cells, p_advance_a=0.5, p_rock_a=1/3):
-    """
-    Simulates a single game of Rayuela Mortal using NumPy.
+def crear_rayeula(n_ulaulas):    
+    lista_vacia = [""]
+    rayuela = lista_vacia * n_ulaulas
+    rayuela[0] = "A"
+    rayuela[len(rayuela)-1] = "B"
+    return rayuela
+
+def elegir_PPoT():
+    resultado = random.randint(1, 3)
+    if resultado == 1:
+        return "piedra"
+    elif resultado == 2:
+        return "papel"
+    else:
+        return "tijera"
+
+def jugar_PPoT(eleccion_A, eleccion_B):
+    dic_ppot = {"piedra": "tijera", "tijera": "papel", "papel": "piedra"}
     
-    Parameters:
-    - n_cells: Length of the board.
-    - p_advance_a: Probability that team A moves on a turn.
-    - p_rock_a: Probability that A chooses rock in a duel.
-    """
-    pos_a = 0
-    pos_b = n_cells - 1
-    turns = 0
+    if eleccion_A == eleccion_B:
+        return ""
+
+    elif dic_ppot[eleccion_A] == eleccion_B: 
+        return "A"
     
-    # RPS probabilities for A
-    # Remaining 1-p_rock_a is split between paper and scissors
-    p_other = (1 - p_rock_a) / 2
-    probs_a = [p_rock_a, p_other, p_other]
-    probs_b = [1/3, 1/3, 1/3]
+    else:
+        return "B"
     
-    while True:
-        turns += 1
+def enfrentamiento_PPoT():
+    ganador = ""
+    while ganador == "":
+        ganador = jugar_PPoT(elegir_PPoT(), elegir_PPoT())
+    return ganador
+
+def posicion(equipo, rayuela):
+    for i in range(len(rayuela)):
+        if rayuela[i] == equipo:
+            return i
         
-        # Movement phase
-        if np.random.random() < p_advance_a:
-            pos_a += 1
-        else:
-            pos_b -= 1
-            
-        # Collision check
-        if pos_a == pos_b:
-            # Duel phase (0: Rock, 1: Paper, 2: Scissors)
-            # A wins if (a - b) % 3 == 1
-            winner = None
-            while winner is None:
-                move_a = np.random.choice([0, 1, 2], p=probs_a)
-                move_b = np.random.choice([0, 1, 2], p=probs_b)
-                
-                if move_a == move_b:
-                    continue
-                elif (move_a - move_b) % 3 == 1:
-                    winner = 'A'
-                else:
-                    winner = 'B'
-            
-            # Reset loser
-            if winner == 'A':
-                pos_b = n_cells - 1
-            else:
-                pos_a = 0
+def hay_enfrentamiento(rayuela):
+    pos_a = posicion("A", rayuela)
+    pos_b = posicion("B", rayuela)
+    
+    if pos_a+1 == pos_b:
+        return True
+    else: 
+        return False
+
+def avanzar(equipo, rayuela):
+    if equipo == "A":
+        pos_a = posicion("A", rayuela)+1
+        rayuela[pos_a] = "A"
+        rayuela[pos_a - 1] = ""
+    if equipo == "B":
+        pos_b = posicion("B", rayuela)-1
+        rayuela[pos_b] = "B"
+        rayuela[pos_b + 1] = ""
+    
+    return rayuela
+
+def avanzar_por_turno(turno, rayuela):
+    if turno % 2 == 0:
+        rayuela_avanzada = avanzar("A", rayuela)
+    else:
+        rayuela_avanzada = avanzar("B", rayuela)
         
-        # Winning condition
-        if pos_a >= n_cells - 1:
-            return 'A', turns
-        if pos_b <= 0:
-            return 'B', turns
+    return rayuela_avanzada
 
-def run_experiment_1(min_size=4, max_size=20, iterations=50):
-    results = []
-    for size in range(min_size, max_size + 1):
-        durations = [simulate_game(size)[1] for _ in range(iterations)]
-        results.append({'Board Size': size, 'Avg Duration': np.mean(durations)})
-    return pd.DataFrame(results)
+def concluir_enfrentamiento(ganador, rayuela):
+    pos_a = posicion("A", rayuela)
+    pos_b = posicion("B", rayuela)
+    if ganador == "A":
+        rayuela[pos_b] = ""
+        rayuela[len(rayuela) - 1] = "B"
+    else:
+        rayuela[pos_a] = ""
+        rayuela[0] = "A"
+   
+    return rayuela
+        
+def ganador_partida(rayuela):
+    pos_a = posicion("A", rayuela)
+    pos_b = posicion("B", rayuela)
+    if pos_a == len(rayuela)-2:
+        return "A"
+    elif pos_b == 1:
+        return "B"
+    else:
+        return ""
+    
+def rayuela_mortal(n_ulaulas):
+    rayuela = crear_rayeula(n_ulaulas)
+    contador = 0
+    while ganador_partida(rayuela) == "":
+        avanzar_por_turno(contador, rayuela)
+        if hay_enfrentamiento(rayuela):
+            concluir_enfrentamiento(enfrentamiento_PPoT(), rayuela)            
+        contador += 1
+        print(rayuela)
+    return contador
+    
+def primera_pregunta():                                 # 1 #
+    resultados = []
+    contador = []
+    promedios = []
+    for i in range(4,20):
+        for j in range(10):
+            resultados.append(rayuela_mortal(i))
+        promedio = sum(resultados) / 10
+        promedios.append(promedio)
+        contador.append(i)
 
-def run_experiment_2(n_cells=10, iterations=100):
-    p_rocks = np.linspace(0, 1, 11)
-    win_rates = []
-    for p in p_rocks:
-        wins = sum(1 for _ in range(iterations) if simulate_game(n_cells, p_rock_a=p)[0] == 'A')
-        win_rates.append({'P(Rock)_A': p, 'Win Rate A': wins / iterations})
-    return pd.DataFrame(win_rates)
+    x = contador
+    y = promedios
+    plt.plot(x,y)
+    plt.title("Duracion de la partida en funcion del largo de la rayuela")
+    plt.xlabel("Largo de la rayuela")
+    plt.ylabel("Duracion de la partida")
+    
 
-def run_experiment_3(n_cells=10, iterations=100):
-    p_advances = np.linspace(0, 1, 11)
-    results = []
-    for p in p_advances:
-        wins_a = sum(1 for _ in range(iterations) if simulate_game(n_cells, p_advance_a=p)[0] == 'A')
-        results.append({'P(Advance)_A': p, 'Win Rate A': wins_a / iterations, 'Win Rate B': 1 - (wins_a / iterations)})
-    return pd.DataFrame(results)
+                                      # 2 #
+def partida_trucada(prob_piedra):
+    resultado = random.random()
+    calculo = (1 - resultado) / 2
+    if resultado <= prob_piedra:
+        return "piedra"
+    elif resultado <= prob_piedra + calculo :
+        return "papel"
+    else:
+        return "tijera"
+    
+def enfrentamiento_PPoT2(prob_piedra):
+    ganador = ""
+    while ganador == "":
+        ganador = jugar_PPoT(partida_trucada(prob_piedra), elegir_PPoT())
+    return ganador
+    
+def rayuela_mortal2(n_ulaulas, prob_piedra):
+    rayuela = crear_rayeula(n_ulaulas)
+    contador = 0
+    while ganador_partida(rayuela) == "":
+        avanzar_por_turno(contador, rayuela)
+        if hay_enfrentamiento(rayuela):
+            concluir_enfrentamiento(enfrentamiento_PPoT2(prob_piedra), rayuela)            
+        contador += 1  
+    return ganador_partida(rayuela)
+        
+def simulac2(n_ulaulas, prob_piedra):
+    vacio = []
+    contador = 0
+    contador2 = 0
+    while contador <= 100:
+        vacio.append(rayuela_mortal2(n_ulaulas, prob_piedra))
+        contador += 1
+    for i in range(len(vacio)):
+        if vacio[i] == "A":
+            contador2 += 1
+    return contador2/100
 
-if __name__ == "__main__":
-    sns.set_theme()
-    print("Running Experiment 1...")
-    df1 = run_experiment_1()
-    print(df1)
+def grafico_simulacion(n_ulaulas):
+    resultados = []
+    contador_probs = []
+    for i in range(0,100):
+        resultados.append(simulac2(n_ulaulas ,i/100))
+        contador_probs.append(i/100)
+        
+
+    x = contador_probs
+    y = resultados
+    plt.plot(x,y)
+    plt.title("Probabilidad de que gane A en funcion de la probabilidad de piedra")
+    plt.xlabel("Probabilidad de piedra")
+    plt.ylabel("Probabilidad de que gane A")
+    
+    
+                          #3#
+                          
+
+def avanzar_por_turno2(probA, rayuela):
+    A_prob = random.random()
+    if A_prob <=  probA:
+        rayuela_avanzada = avanzar("A", rayuela)
+    else:
+        rayuela_avanzada = avanzar("B", rayuela)
+            
+    return rayuela_avanzada
+
+def rayuela_mortal3(n_ulaulas, probA):
+    rayuela = crear_rayeula(n_ulaulas)
+    contador = 0
+    while ganador_partida(rayuela) == "":
+        avanzar_por_turno2(probA, rayuela)
+        if hay_enfrentamiento(rayuela):
+            concluir_enfrentamiento(enfrentamiento_PPoT(), rayuela)            
+        contador += 1  
+    return ganador_partida(rayuela)
+
+def simulac3 (n_ulaulas, probA):
+    vacio = []
+    contador = 0
+    contador3 = 0
+    while contador <= 100:
+        vacio.append(rayuela_mortal3(n_ulaulas, probA))
+        contador += 1
+    for i in range(len(vacio)):
+        if vacio[i] == "A":
+            contador3 += 1
+    promedio_a = contador3/100
+
+    
+    if promedio_a > 1:
+        promedio_a = 1
+    elif promedio_a < 0:
+        promedio_a = 0
+    
+    return promedio_a
+    
+def grafico_simulacion2(n_ulaulas):
+    resultados_a = []
+    resultados_b = []
+    contador_probsA = []
+    contador_probsB = []
+    
+    for i in range(0,100):
+        res_a = simulac3(n_ulaulas ,i/100)
+        res_b = 1 - res_a
+        contador_probsA.append(i/100)
+        contador_probsB.append(1-(i/100))
+        resultados_a.append(res_a)
+        resultados_b.append(res_b)
+        
+    x = contador_probsA
+    y = resultados_a
+    y2 = resultados_b
+    plt.plot(x,y, label="Línea 1: A")
+    plt.plot(x,y2, label="Línea 2: B")  
+    plt.title("Probabilidad de que ganen en funcion de la probabilidad de que avance A")
+    plt.xlabel("Probabilidad de que avance A")
+    plt.ylabel("Probabilidad de que gane cada equipo")
+    plt.legend()
